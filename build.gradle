@@ -1,0 +1,72 @@
+buildscript {
+  ext {
+    springBootVersion = '1.5.2.RELEASE'
+  }
+  repositories {
+      maven {
+          url "https://plugins.gradle.org/m2/"
+      }
+      mavenCentral()
+  }
+  dependencies {
+      classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+      // tag::build[]
+      classpath('gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.13.0')
+      // end::build[]
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: "jacoco"
+apply plugin: 'com.palantir.docker'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  jcenter()
+  mavenCentral()
+}
+
+dependencies {
+  compile('org.springframework.boot:spring-boot-starter-web:1.5.2.RELEASE')
+  compile('org.springframework.boot:spring-boot-starter-data-jpa:1.5.2.RELEASE')
+  compile('org.springframework.boot:spring-boot-starter-security:1.5.2.RELEASE')
+  compile('org.springframework.boot:spring-boot-devtools:1.5.2.RELEASE')
+  compile('io.jsonwebtoken:jjwt:0.7.0')
+  compile('org.projectlombok:lombok:1.16.12')
+
+  runtime('org.postgresql:postgresql:42.1.1')
+  
+  testCompile('org.springframework.boot:spring-boot-starter-test:1.5.2.RELEASE')
+  testCompile("junit:junit:4.12")
+
+  testRuntime('com.h2database:h2:1.4.193')
+}
+
+jar {
+  baseName='medicalbox-admin-be'
+  version='0.0.1'
+}
+
+jacoco {
+  toolVersion = "0.7.6.201602180812"
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled = false
+    csv.enabled = false
+    html.enabled = true
+  }
+}
+
+docker {
+    name "${project.group}/${jar.baseName}"
+    files jar.archivePath
+    buildArgs(['JAR_FILE': "${jar.archiveName}"])
+}
+
+test.finalizedBy jacocoTestReport

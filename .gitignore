@@ -1,0 +1,8 @@
+
+/.gradle/
+/build/
+/.idea/
+/out/
+/app.trace.db
+/app.mv.db
+/admin-backend.iml

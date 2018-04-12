@@ -1,0 +1,20 @@
+version: '3'
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgresql
+    ports:
+      - "8080:8080"
+    tty: true
+
+  postgresql:
+    image: centos/postgresql-96-centos7:9.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_USER=test
+      - POSTGRESQL_PASSWORD=test
+      - POSTGRESQL_DATABASE=test
