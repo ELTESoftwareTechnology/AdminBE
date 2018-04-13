@@ -1,8 +1,8 @@
-#To build docker image:
+# To build docker image:
 
 ```./gradlew dockerBuildImage```
 
-#Pushing to Docker hub
+# Pushing to Docker hub
 - Configure version in build.gradle
 - Add credentials.json to root
 ```
@@ -16,14 +16,14 @@
 ./gradlew dockerPushImage
 ```
 
-#To build everything locally (docker-compose build):
+# To build everything locally (docker-compose build):
 
 ```./gradlew composeBuild```
 
-#To start everything locally (docker-compose up):
+# To start everything locally (docker-compose up):
 
 ```./gradlew composeUp```
 
-#DON'T FORGET TO STOP THEM ;)
+# DON'T FORGET TO STOP THEM ;)
 
 ```./gradlew composeDown```
