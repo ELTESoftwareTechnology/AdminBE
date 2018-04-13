@@ -1,26 +1,27 @@
+import groovy.json.JsonSlurper
+
 buildscript {
   ext {
     springBootVersion = '1.5.2.RELEASE'
   }
   repositories {
-      maven {
-          url "https://plugins.gradle.org/m2/"
-      }
+      jcenter()
       mavenCentral()
   }
   dependencies {
       classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-      // tag::build[]
-      classpath('gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.13.0')
-      // end::build[]
+      classpath('com.bmuschko:gradle-docker-plugin:3.2.6')
+      classpath("com.avast.gradle:gradle-docker-compose-plugin:0.7.1")
   }
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
-apply plugin: "jacoco"
-apply plugin: 'com.palantir.docker'
+apply plugin: 'jacoco'
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
+apply plugin: 'docker-compose'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -39,7 +40,7 @@ dependencies {
   compile('org.projectlombok:lombok:1.16.12')
 
   runtime('org.postgresql:postgresql:42.1.1')
-  
+
   testCompile('org.springframework.boot:spring-boot-starter-test:1.5.2.RELEASE')
   testCompile("junit:junit:4.12")
 
@@ -47,8 +48,8 @@ dependencies {
 }
 
 jar {
-  baseName='medicalbox-admin-be'
-  version='0.0.1'
+  baseName='admin-backend'
+  version='0.0.2'
 }
 
 jacoco {
@@ -63,10 +64,24 @@ jacocoTestReport {
   }
 }
 
+
 docker {
-    name "${project.group}/${jar.baseName}"
-    files jar.archivePath
-    buildArgs(['JAR_FILE': "${jar.archiveName}"])
+    javaApplication {
+        tag = "eltesoftwaretechnology/${jar.baseName}:${jar.version}"
+        baseImage = 'openjdk:8-jdk-alpine'
+        ports = []
+    }
+    registryCredentials {
+        def jsonFile = file('credentials.json')
+        def parsedJson = new JsonSlurper().parseText(jsonFile.text)
+
+        username = parsedJson.username
+        password = parsedJson.password
+    }
+}
+
+dockerCompose {
+    buildBeforeUp = true
 }
 
 test.finalizedBy jacocoTestReport
