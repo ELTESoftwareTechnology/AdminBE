@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class UserController {
 
     public final static String LIST_DOCTOR_URL = "/api/doctor/list";
+    public final static String LIST_PATIENT_URL = "/api/patient/list";
     private UserService userService;
 
     /**
@@ -26,7 +27,6 @@ public class UserController {
         this.userService = userService;
     }
 
-
     @GetMapping(LIST_DOCTOR_URL)
     public ResponseEntity listDoctors(){
         // TODO: filter in query instead
@@ -35,4 +35,45 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping(LIST_PATIENT_URL)
+    public ResponseEntity getPatients(){
+        String dummyJson = "{\n" +
+                "  \"patients\": [\n" +
+                "    {\n" +
+                "      \"id\": 5,\n" +
+                "      \"username\": \"test5\",\n" +
+                "      \"email\": \"test5@t.com\",\n" +
+                "      \"firstName\": \"John\",\n" +
+                "      \"lastName\": \"McClane\",\n" +
+                "      \"role\": {\n" +
+                "        \"id\": 2,\n" +
+                "        \"roleType\": \"USER\"\n" +
+                "      }\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"id\": 6,\n" +
+                "      \"username\": \"test6\",\n" +
+                "      \"email\": \"test6@t.com\",\n" +
+                "      \"firstName\": \"Korben\",\n" +
+                "      \"lastName\": \"Dallas\",\n" +
+                "      \"role\": {\n" +
+                "        \"id\": 2,\n" +
+                "        \"roleType\": \"USER\"\n" +
+                "      }\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"id\": 7,\n" +
+                "      \"username\": \"test7\",\n" +
+                "      \"email\": \"test7@t.com\",\n" +
+                "      \"firstName\": \"Butch\",\n" +
+                "      \"lastName\": \"Coolidge\",\n" +
+                "      \"role\": {\n" +
+                "        \"id\": 2,\n" +
+                "        \"roleType\": \"USER\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        return ResponseEntity.ok(dummyJson);
+    }
 }
