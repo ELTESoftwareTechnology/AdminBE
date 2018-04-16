@@ -1,7 +1,6 @@
 package com.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,6 +32,13 @@ public class User implements Serializable {
     @NotNull
     @JsonIgnore
     private String password;
+
+    @NotNull
+    @JsonIgnore
+    private String privateKey;
+
+    @NotNull
+    private String publicKey;
 
     @NotNull
     @Column(nullable = false)
