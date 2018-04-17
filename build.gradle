@@ -67,10 +67,6 @@ jacocoTestReport {
     }
 }
 
-test {
-    ignoreFailures = true
-}
-
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
