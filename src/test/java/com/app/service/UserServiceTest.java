@@ -59,7 +59,7 @@ public class UserServiceTest extends BaseTest {
     public void findByNameTest() {
         User user = getUsers(1).get(0);
         when(userRepository.findByUsername(anyString())).thenReturn(user);
-        User fetchedUser = userService.findByName("Random name");
+        User fetchedUser = userService.findByUsername("Random name");
 
         verify(userRepository, times(1)).findByUsername(anyString());
         assertNotNull("Fetched user shouldn't be NULL", fetchedUser);

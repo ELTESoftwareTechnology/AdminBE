@@ -126,7 +126,7 @@ public class AuthController extends BaseController {
             return new ResponseEntity<>("The selected roleType does not exist or parameter is missing.", HttpStatus.BAD_REQUEST);
         }
 
-        if(this.userService.findByName(name) != null) {
+        if(this.userService.findByUsername(name) != null) {
            throw new UserAlreadyExistsException();
         }
 
@@ -137,7 +137,6 @@ public class AuthController extends BaseController {
         JwtUser userDetails;
 
         try {
-            //TODO: Replace this with actual role validation!
             Role role  = this.roleService.findByRoleType(roleType);
 
             VirgilCrypto crypto = new VirgilCrypto();

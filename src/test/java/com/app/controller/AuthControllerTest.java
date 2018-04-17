@@ -7,6 +7,10 @@ import com.app.security.auth.JwtAuthenticationResponse;
 import com.app.security.auth.JwtUtil;
 import com.app.security.auth.JwtUser;
 import com.app.service.UserService;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,6 +26,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Collections;
@@ -31,6 +37,13 @@ import static com.app.util.JsonMapper.toJson;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+@SqlGroup({
+        @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {
+                "classpath:data/hsql/init-roles.sql"
+        }),
+        @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:data/hsql/clear.sql")
+})
 
 public class AuthControllerTest extends BaseControllerTest {
 
@@ -75,6 +88,10 @@ public class AuthControllerTest extends BaseControllerTest {
 
         JwtAuthenticationResponse expectedResponse = new JwtAuthenticationResponse(TOKEN);
 
+        when(userService.findByUsername(anyString())).thenReturn(null);
+
+        when(userService.findByEmail(anyString())).thenReturn(null);
+
         when(userService.save(any(User.class))).thenReturn(user);
 
         when(userDetailsService.loadUserByUsername(anyString()))
@@ -94,7 +111,9 @@ public class AuthControllerTest extends BaseControllerTest {
 
         String content = result.getResponse().getContentAsString();
         int status = result.getResponse().getStatus();
-
+        
+        verify(userService, times(1)).findByUsername(anyString());
+        verify(userService, times(1)).findByEmail(anyString());
         verify(userService, times(1)).save(any(User.class));
         verify(userDetailsService, times(1)).loadUserByUsername(anyString());
         verify(jwtTokenUtil, times(1)).generateToken(any(UserDetails.class));
