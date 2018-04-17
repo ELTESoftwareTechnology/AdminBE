@@ -13,6 +13,9 @@ import com.app.security.auth.JwtUser;
 import com.app.service.RoleService;
 import com.app.service.UserService;
 import com.app.util.ExceptionUtil;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -136,7 +139,15 @@ public class AuthController extends BaseController {
         try {
             //TODO: Replace this with actual role validation!
             Role role  = this.roleService.findByRoleType(roleType);
-            User user = new User(0L, name, email, password, firstName, lastName, role);
+
+            VirgilCrypto crypto = new VirgilCrypto();
+            VirgilKeyPair keyPair = crypto.generateKeys();
+            byte[] privateKeyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), password);
+            String privateKeyStr = ConvertionUtils.toBase64String(privateKeyData);
+            byte[] publicKeyData = crypto.exportPublicKey(keyPair.getPublicKey());
+            String publicKeyStr = ConvertionUtils.toBase64String(publicKeyData);
+
+            User user = new User(0L, name, email, password, privateKeyStr, publicKeyStr, firstName, lastName, role);
             LOG.info(user.toString());
             userService.save(user);
             userDetails = (JwtUser) userDetailsService.loadUserByUsername(name);
