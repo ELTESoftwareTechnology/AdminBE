@@ -63,7 +63,6 @@ public class AuthControllerTest extends BaseControllerTest {
         setUp(authController);
     }
 
-    @Ignore
     @Test(timeout=1000)
     public void signUpTest() throws Exception {
         User user = getUsers(1).get(0);

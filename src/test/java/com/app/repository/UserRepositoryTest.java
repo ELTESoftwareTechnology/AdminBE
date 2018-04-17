@@ -1,6 +1,8 @@
 package com.app.repository;
 
+import com.app.entity.Role;
 import com.app.entity.User;
+import com.app.entity.enums.RoleTypeEnum;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,6 @@ import static org.junit.Assert.*;
     @Sql(executionPhase = ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:data/hsql/clear.sql")
 })
 
-@Ignore
 public class UserRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
@@ -74,7 +75,15 @@ public class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test(timeout=5000)
     public void saveTest() {
-        User user = getUsers(1).get(0);
+        User user = new User("random-name",
+                "random-first-name",
+                "random lastName",
+                "random@email.com",
+                "password",
+                new Role(0L, RoleTypeEnum.ADMIN),
+                "private-key",
+                "public-key");
+
         userRepository.save(user);
         User fetchedUser = userRepository.findByUsername(user.getUsername());
         assertNotNull("User shouldn't be NULL", fetchedUser);

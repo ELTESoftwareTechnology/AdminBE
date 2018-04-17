@@ -12,12 +12,14 @@ public class DummyDataGenerator {
     public static List<User> getUsers(int amount, int idStarsFrom) {
         List<User> users = new ArrayList<>();
         for (int i = idStarsFrom; i < amount + idStarsFrom; i++) {
-            users.add(new User("random-name" + i,
+            users.add(new User("random-user-name" + i,
                     "random-first-name" + i,
-                    "random lastName" + i,
+                    "random-last-name" + i,
                     String.format("random%d@email.com", i),
                     "password" + i,
-                    new Role(0L, RoleTypeEnum.ADMIN)));
+                    new Role(0L, RoleTypeEnum.ADMIN),
+                    "private-key" + i,
+                    "public-key" + i));
             users.get(i - idStarsFrom).setId((long) i);
         }
 
