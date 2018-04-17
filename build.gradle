@@ -20,7 +20,7 @@ apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'jacoco'
 apply plugin: 'application'
-apply plugin: 'com.bmuschko.docker-java-application'
+apply plugin: 'com.bmuschko.docker-remote-api'
 apply plugin: 'docker-compose'
 
 sourceCompatibility = 1.8
@@ -64,13 +64,32 @@ jacocoTestReport {
   }
 }
 
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+task createDockerfile(type: Dockerfile) {
+    dependsOn build
+    destFile = project.file('./Dockerfile')
+    from 'openjdk:8-jdk-alpine'
+    volume "/tmp"
+    addFile "build/libs/${jar.baseName}-${jar.version}.jar", 'app.jar'
+    entryPoint "java\",\"-Djava.security.egd=file:/dev/./urandom\",\"-jar\",\"/app.jar"
+}
+
+task dockerBuildImage(type: DockerBuildImage) {
+    dependsOn createDockerfile
+    inputDir = createDockerfile.destFile.parentFile
+    tag = "eltesoftwaretechnology/${jar.baseName}:${jar.version}"
+}
+
+task dockerPushImage(type: DockerPushImage) {
+    dependsOn dockerBuildImage
+    imageName "eltesoftwaretechnology/${jar.baseName}"
+    tag  "${jar.version}"
+}
 
 docker {
-    javaApplication {
-        tag = "eltesoftwaretechnology/${jar.baseName}:${jar.version}"
-        baseImage = 'openjdk:8-jdk-alpine'
-        ports = []
-    }
     registryCredentials {
         def jsonFile = file('credentials.json')
         def parsedJson = new JsonSlurper().parseText(jsonFile.text)
@@ -82,6 +101,10 @@ docker {
 
 dockerCompose {
     buildBeforeUp = true
+    captureContainersOutput = true
 }
+
+composeBuild.dependsOn "createDockerfile"
+composeUp.dependsOn "createDockerfile"
 
 test.finalizedBy jacocoTestReport
