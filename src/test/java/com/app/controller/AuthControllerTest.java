@@ -1,18 +1,13 @@
 package com.app.controller;
 
-import com.app.entity.enums.RoleTypeEnum;
 import com.app.entity.User;
+import com.app.entity.enums.RoleTypeEnum;
 import com.app.security.auth.JwtAuthenticationRequest;
 import com.app.security.auth.JwtAuthenticationResponse;
-import com.app.security.auth.JwtUtil;
 import com.app.security.auth.JwtUser;
+import com.app.security.auth.JwtUtil;
 import com.app.service.UserService;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -111,7 +106,7 @@ public class AuthControllerTest extends BaseControllerTest {
 
         String content = result.getResponse().getContentAsString();
         int status = result.getResponse().getStatus();
-        
+
         verify(userService, times(1)).findByUsername(anyString());
         verify(userService, times(1)).findByEmail(anyString());
         verify(userService, times(1)).save(any(User.class));
