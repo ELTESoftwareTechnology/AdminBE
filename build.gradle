@@ -96,11 +96,8 @@ task dockerPushImage(type: DockerPushImage) {
 
 docker {
     registryCredentials {
-        def jsonFile = file('credentials.json')
-        def parsedJson = new JsonSlurper().parseText(jsonFile.text)
-
-        username = parsedJson.username
-        password = parsedJson.password
+        username = System.getProperty('DOCKER_HUB_USERNAME')
+        password = System.getProperty('DOCKER_HUB_PASSWORD')
     }
 }
 
