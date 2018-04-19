@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class UserController {
+public class UserController extends BaseController {
 
     public final static String LIST_DOCTOR_URL = "/api/doctor/list";
     public final static String LIST_PATIENT_URL = "/api/patient/list";
