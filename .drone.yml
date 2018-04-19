@@ -1,0 +1,5 @@
+pipeline:
+  build:
+    image: java:8u91-jdk
+    commands:
+      - ./gradlew build

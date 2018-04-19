@@ -26,14 +26,6 @@
 
 # Pushing to Docker hub
 - Configure version in build.gradle
-- Add credentials.json to root
 ```
-{
-  "username": "docker hub username",
-  "password": "docker hub password"
-}
-```
-- Execute in terminal:
-```
-./gradlew dockerPushImage
+./gradlew dockerPushImage -DDOCKER_HUB_USERNAME='username' -DDOCKER_HUB_PASSWORD='password'
 ```
