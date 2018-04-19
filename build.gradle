@@ -54,7 +54,7 @@ dependencies {
 
 jar {
     baseName = 'admin-backend'
-    version = '0.1.0'
+    version = '0.1.1'
 }
 
 jacoco {
