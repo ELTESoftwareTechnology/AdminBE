@@ -54,7 +54,6 @@ dependencies {
 
 jar {
     baseName = 'admin-backend'
-    version = '0.1.1'
 }
 
 jacoco {
@@ -78,7 +77,7 @@ task createDockerfile(type: Dockerfile) {
     destFile = project.file('./Dockerfile')
     from 'openjdk:8-jdk-alpine'
     volume "/tmp"
-    addFile "build/libs/${jar.baseName}-${jar.version}.jar", 'app.jar'
+    addFile "build/libs/${jar.baseName}.jar", 'app.jar'
     entryPoint "java\",\"-Djava.security.egd=file:/dev/./urandom\",\"-jar\",\"/app.jar"
 }
 
@@ -91,7 +90,6 @@ task dockerBuildImage(type: DockerBuildImage) {
 task dockerPushImage(type: DockerPushImage) {
     dependsOn dockerBuildImage
     imageName "eltesoftwaretechnology/${jar.baseName}"
-    tag "${jar.version}"
 }
 
 docker {

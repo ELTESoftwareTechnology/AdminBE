@@ -14,7 +14,7 @@ pipeline:
       repo: eltesoftwaretechnology/admin-backend
       dockerfile: Dockerfile
 #      secrets: [ docker_username, docker_password ]
-      tags: [ test ]
+      auto_tag: true
       when:
         branches: pull/*
-        event: push
+        event: tag
