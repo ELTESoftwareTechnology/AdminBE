@@ -3,3 +3,6 @@ pipeline:
     image: java:8u91-jdk
     commands:
       - ./gradlew build
+    when:
+      branches: [ master, development, pull/* ]
+      event: push
