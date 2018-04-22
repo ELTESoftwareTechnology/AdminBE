@@ -6,3 +6,15 @@ pipeline:
     when:
       branches: [ master, development, pull/* ]
       event: push
+
+  publish:
+      image: plugins/docker
+      username: oltier
+      password: rub1kk0ck@K!Snagy2
+      repo: eltesoftwaretechnology/admin-backend
+      dockerfile: Dockerfile
+#      secrets: [ docker_username, docker_password ]
+      tags: [ test ]
+      when:
+        branches: pull/*
+        event: push
