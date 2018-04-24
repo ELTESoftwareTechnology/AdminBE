@@ -1,15 +1,29 @@
 pipeline:
-  build:
-    image: java:8u91-jdk
-    commands:
-      - ./gradlew build
-    when:
-      branches: [ master, development, pull/* ]
-      event: [ push, tag ]
+#  build:
+#    image: java:8u91-jdk
+#    commands:
+#      - ./gradlew build
+#    when:
+#      branches: [ master, development, pull/* ]
+#      event: [ push, tag ]
+#
+#  publish:
+#    image: plugins/docker
+#    repo: eltesoftwaretechnology/admin-backend
+#    dockerfile: Dockerfile
+#    secrets: [ docker_username, docker_password ]
+#    auto_tag: true
 
-  publish:
-      image: plugins/docker
-      repo: eltesoftwaretechnology/admin-backend
-      dockerfile: Dockerfile
-      secrets: [ docker_username, docker_password ]
-      auto_tag: true
+  rancher:
+    image: peloton/drone-rancher
+    url: http://rancher.medicalbox.online
+    access_key: 14A5F82EE773C136D120
+    secret_key: dyWJxBavnHyt7DBGs4mbtp7jvxBKWgXaTRJLWm8A
+    service: adminbe/api
+    docker_image: eltesoftwaretechnology/admin-backend:test
+    start_first: true
+    confirm: false
+    timeout: 180
+    when:
+      branches: master
+      event: tag
