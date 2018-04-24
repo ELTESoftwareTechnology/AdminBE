@@ -8,8 +8,21 @@ pipeline:
       event: [ push, tag ]
 
   publish:
-      image: plugins/docker
-      repo: eltesoftwaretechnology/admin-backend
-      dockerfile: Dockerfile
-      secrets: [ docker_username, docker_password ]
-      auto_tag: true
+    image: plugins/docker
+    repo: eltesoftwaretechnology/admin-backend
+    dockerfile: Dockerfile
+    secrets: [ docker_username, docker_password ]
+    auto_tag: true
+
+  rancher:
+    image: peloton/drone-rancher
+    url: http://178.62.230.163:8080
+    secrets: [rancher_access_key, rancher_secret_key ]
+    service: adminbe/api
+    docker_image: "eltesoftwaretechnology/admin-backend:${DRONE_TAG##v}"
+    start_first: true
+    confirm: false
+    timeout: 180
+    when:
+      branches: master
+      event: tag
