@@ -6,6 +6,4 @@
 /app.trace.db
 /app.mv.db
 /admin-backend.iml
-/credentials.json
-Dockerfile
 AdminBE.iml

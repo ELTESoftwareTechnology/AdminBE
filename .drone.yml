@@ -5,4 +5,11 @@ pipeline:
       - ./gradlew build
     when:
       branches: [ master, development, pull/* ]
-      event: push
+      event: [ push, tag ]
+
+  publish:
+      image: plugins/docker
+      repo: eltesoftwaretechnology/admin-backend
+      dockerfile: Dockerfile
+      secrets: [ docker_username, docker_password ]
+      auto_tag: true
