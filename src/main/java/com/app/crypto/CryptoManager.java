@@ -1,19 +1,30 @@
 package com.app.crypto;
 
+import com.app.security.auth.JwtUser;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.*;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 public class CryptoManager {
 
     private VirgilCrypto crypto = new VirgilCrypto();
+
+    private static Map<String, VirgilPrivateKey> privateKeys = new HashMap<>();
+
+    public static void setPrivateKey(VirgilPrivateKey key){
+        JwtUser principal = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        privateKeys.put(principal.getUsername(), key);
+    }
+
+    public static VirgilPrivateKey getPrivateKey(){
+        JwtUser principal = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        return privateKeys.get(principal.getUsername());
+    }
 
     public void processInputAndDecrypt(String base64EncryptedData, String privateKeyString, String publicKeyString, String password){
         try {
@@ -70,7 +81,7 @@ public class CryptoManager {
         return encryptedData;
     }
 
-    private String dataDecryption(byte[] encryptedData, VirgilPrivateKey receiverPrivateKey)
+    public String dataDecryption(byte[] encryptedData, VirgilPrivateKey receiverPrivateKey)
             throws DecryptionException {
         // prepare data to be decrypted
         byte[] decryptedData = crypto.decrypt(encryptedData, receiverPrivateKey);

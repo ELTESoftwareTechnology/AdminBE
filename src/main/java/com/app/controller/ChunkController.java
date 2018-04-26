@@ -1,21 +1,26 @@
 package com.app.controller;
 
 import com.app.crypto.ChunkUploadRequest;
+import com.app.crypto.CryptoManager;
 import com.app.entity.ChunkData;
 import com.app.entity.ChunkInfo;
 import com.app.entity.User;
+import com.app.exception.KeyExpiredException;
 import com.app.exception.TargetUserNotFoundException;
 import com.app.security.auth.JwtUser;
 import com.app.service.ChunkService;
 import com.app.service.UserService;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class will handle the encrypted data management in chunks
@@ -48,30 +53,33 @@ public class ChunkController extends BaseController {
 
 
     @GetMapping(CHUNK_QUERY_URL)
-    public ResponseEntity queryChunk() {
-        String dummyJson = "{\n" +
-                "  \"measurements\": [\n" +
-                "    {\n" +
-                "      \"type\": \"heartrate\",\n" +
-                "      \"unit\": \"bpm\",\n" +
-                "      \"value\": 128,\n" +
-                "      \"createdAt\": \"2018-04-16T21:50:43.515Z\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\": \"heartrate\",\n" +
-                "      \"unit\": \"bpm\",\n" +
-                "      \"value\": 100,\n" +
-                "      \"createdAt\": \"2018-04-16T21:51:13.132Z\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\": \"heartrate\",\n" +
-                "      \"unit\": \"bpm\",\n" +
-                "      \"value\": 140,\n" +
-                "      \"createdAt\": \"2018-04-16T21:51:23.770Z\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
-        return ResponseEntity.ok(dummyJson);
+    public ResponseEntity queryChunk(@RequestParam("patientUsername") String patientUsername) {
+        JwtUser principal = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        User currentUser = this.userService.findByUsername(principal.getUsername());
+
+        VirgilPrivateKey privateKey = CryptoManager.getPrivateKey();
+
+        if(privateKey == null){
+            throw new KeyExpiredException();
+        }
+
+        List<ChunkInfo> infosByPatient = chunkService.findChunksForUser(currentUser).stream().filter(i -> i.getFrom().getUsername().equals(patientUsername)).distinct().collect(Collectors.toList());
+
+        ArrayList<String> decryptedData = new ArrayList<>();
+
+        try {
+            for (ChunkInfo info : infosByPatient) {
+                String encryptedData = info.getData().getEncryptedData();
+                CryptoManager manager = new CryptoManager();
+                String decryptedText = manager.dataDecryption(ConvertionUtils.toBase64Bytes(encryptedData), privateKey);
+                decryptedData.add(decryptedText);
+            }
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage());
+            return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseEntity.ok(decryptedData);
     }
 
 

@@ -1,5 +1,6 @@
 package com.app.controller;
 
+import com.app.crypto.CryptoManager;
 import com.app.entity.Role;
 import com.app.entity.enums.RoleTypeEnum;
 import com.app.entity.User;
@@ -15,6 +16,7 @@ import com.app.service.UserService;
 import com.app.util.ExceptionUtil;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -208,6 +210,18 @@ public class AuthController extends BaseController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String token = jwtUtil.generateToken(userDetails);
+
+        try {
+            // After the login succeeded, set private key in memory for later use
+            VirgilCrypto crypto = new VirgilCrypto();
+            User currentUser = this.userService.findByUsername(name);
+            VirgilPrivateKey privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(currentUser.getPrivateKey()), password);
+            CryptoManager.setPrivateKey(privateKey);
+        }catch (Exception ex){
+            LOG.error(ex.getMessage());
+            return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+        }
+
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 
