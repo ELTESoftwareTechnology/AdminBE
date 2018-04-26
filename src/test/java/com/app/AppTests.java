@@ -10,7 +10,7 @@ public class AppTests extends BaseTest {
 
     @Test
     public void contextLoads() {
-        assertTrue("Context Loads", true);
+        assertTrue("Context Loads properly", true);
     }
 
 }
