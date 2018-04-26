@@ -1,10 +1,14 @@
 package com.app.controller;
 
+import com.app.entity.ChunkInfo;
 import com.app.entity.User;
 import com.app.entity.enums.RoleTypeEnum;
+import com.app.security.auth.JwtUser;
+import com.app.service.ChunkService;
 import com.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +20,18 @@ public class UserController extends BaseController {
 
     public final static String LIST_DOCTOR_URL = "/api/doctor/list";
     public final static String LIST_PATIENT_URL = "/api/patient/list";
+
+    private ChunkService chunkService;
     private UserService userService;
+
+    /**
+     * Injects ChunkService instance
+     * @param chunkService to inject
+     */
+    @Autowired
+    public void setChunkService(ChunkService chunkService) {
+        this.chunkService = chunkService;
+    }
 
     /**
      * Injects UserService instance
@@ -27,6 +42,10 @@ public class UserController extends BaseController {
         this.userService = userService;
     }
 
+    /**
+     * Returns all registered doctors
+     * @return Doctor list
+     */
     @GetMapping(LIST_DOCTOR_URL)
     public ResponseEntity listDoctors(){
         // TODO: filter in query instead
@@ -35,45 +54,14 @@ public class UserController extends BaseController {
         return ResponseEntity.ok(users);
     }
 
+    /**
+     * Returns all patients for a logged in doctor (the users who sent them data)
+     * @return Patient list
+     */
     @GetMapping(LIST_PATIENT_URL)
     public ResponseEntity getPatients(){
-        String dummyJson = "{\n" +
-                "  \"patients\": [\n" +
-                "    {\n" +
-                "      \"id\": 5,\n" +
-                "      \"username\": \"test5\",\n" +
-                "      \"email\": \"test5@t.com\",\n" +
-                "      \"firstName\": \"John\",\n" +
-                "      \"lastName\": \"McClane\",\n" +
-                "      \"role\": {\n" +
-                "        \"id\": 2,\n" +
-                "        \"roleType\": \"USER\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"id\": 6,\n" +
-                "      \"username\": \"test6\",\n" +
-                "      \"email\": \"test6@t.com\",\n" +
-                "      \"firstName\": \"Korben\",\n" +
-                "      \"lastName\": \"Dallas\",\n" +
-                "      \"role\": {\n" +
-                "        \"id\": 2,\n" +
-                "        \"roleType\": \"USER\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"id\": 7,\n" +
-                "      \"username\": \"test7\",\n" +
-                "      \"email\": \"test7@t.com\",\n" +
-                "      \"firstName\": \"Butch\",\n" +
-                "      \"lastName\": \"Coolidge\",\n" +
-                "      \"role\": {\n" +
-                "        \"id\": 2,\n" +
-                "        \"roleType\": \"USER\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
-        return ResponseEntity.ok(dummyJson);
+        User currentUser = this.userService.findByUsername(((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        List<User> patients = chunkService.findChunksForUser(currentUser).stream().map(ChunkInfo::getFrom).distinct().collect(Collectors.toList());;
+        return ResponseEntity.ok(patients);
     }
 }
