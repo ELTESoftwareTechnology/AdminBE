@@ -19,7 +19,7 @@ public class ChunkInfo {
     private Long id;
 
     @NotNull
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "chunk_data_id")
     private ChunkData data;
 
