@@ -4,8 +4,8 @@ pipeline:
     commands:
       - ./gradlew build --stacktrace
     when:
-      branches: [ master, development, pull/* ]
-      event: [ tag, push ]
+      branches: [ master, development ]
+      event: [ tag, push, pull_request ]
 
   publish:
     image: plugins/docker
