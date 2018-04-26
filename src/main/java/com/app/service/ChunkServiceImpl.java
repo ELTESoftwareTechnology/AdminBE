@@ -9,6 +9,8 @@ import com.app.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ChunkServiceImpl implements ChunkService {
 
@@ -33,8 +35,8 @@ public class ChunkServiceImpl implements ChunkService {
     }
 
     @Override
-    public ChunkInfo findChunksForUser(User user) {
-        return null;
+    public List<ChunkInfo> findChunksForUser(User user) {
+        return chunkInfoRepository.findByTo(user);
     }
 
 }
