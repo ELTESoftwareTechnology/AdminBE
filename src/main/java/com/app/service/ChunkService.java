@@ -5,8 +5,10 @@ import com.app.entity.ChunkInfo;
 import com.app.entity.User;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface ChunkService {
     ChunkInfo saveDataAndInfo(ChunkData data, ChunkInfo info);
-    ChunkInfo findChunksForUser(User user);
+    List<ChunkInfo> findChunksForUser(User user);
 }
