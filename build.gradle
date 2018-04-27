@@ -87,11 +87,6 @@ task dockerBuildImage(type: DockerBuildImage) {
     tag = "eltesoftwaretechnology/${jar.baseName}:${jar.version}"
 }
 
-task dockerPushImage(type: DockerPushImage) {
-    dependsOn dockerBuildImage
-    imageName "eltesoftwaretechnology/${jar.baseName}"
-}
-
 docker {
     registryCredentials {
         username = System.getProperty('DOCKER_HUB_USERNAME')
