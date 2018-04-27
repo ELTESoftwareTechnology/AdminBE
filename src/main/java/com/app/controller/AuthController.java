@@ -103,6 +103,11 @@ public class AuthController extends BaseController {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    private VirgilCrypto crypto() {
+        return new VirgilCrypto();
+    }
+
     /**
      * Adds new user and returns authentication token
      * @param authenticationRequest request with username, email and password fields
@@ -213,9 +218,8 @@ public class AuthController extends BaseController {
 
         try {
             // After the login succeeded, set private key in memory for later use
-            VirgilCrypto crypto = new VirgilCrypto();
             User currentUser = this.userService.findByUsername(name);
-            VirgilPrivateKey privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(currentUser.getPrivateKey()), password);
+            VirgilPrivateKey privateKey = crypto().importPrivateKey(ConvertionUtils.base64ToBytes(currentUser.getPrivateKey()), password);
             CryptoManager.setPrivateKey(privateKey);
         }catch (Exception ex){
             LOG.error(ex.getMessage());

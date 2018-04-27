@@ -17,8 +17,12 @@ public class CryptoManager {
     private static Map<String, VirgilPrivateKey> privateKeys = new HashMap<>();
 
     public static void setPrivateKey(VirgilPrivateKey key){
-        JwtUser principal = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        privateKeys.put(principal.getUsername(), key);
+        try {
+            JwtUser principal = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            privateKeys.put(principal.getUsername(), key);
+        } catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
     }
 
     public static VirgilPrivateKey getPrivateKey(){

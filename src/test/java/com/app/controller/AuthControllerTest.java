@@ -7,6 +7,10 @@ import com.app.security.auth.JwtAuthenticationResponse;
 import com.app.security.auth.JwtUser;
 import com.app.security.auth.JwtUtil;
 import com.app.service.UserService;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -133,6 +137,14 @@ public class AuthControllerTest extends BaseControllerTest {
 
         JwtAuthenticationResponse expectedResponse = new JwtAuthenticationResponse(TOKEN);
 
+        User fakeCurrentUser = new User();
+        VirgilCrypto crypto = new VirgilCrypto();
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] privateKeyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), "password1");
+        String privateKeyStr = ConvertionUtils.toBase64String(privateKeyData);
+        fakeCurrentUser.setPrivateKey(privateKeyStr);
+        when(userService.findByUsername(anyString())).thenReturn(fakeCurrentUser);
+
         when(userDetailsService.loadUserByUsername(anyString())).thenReturn(jwtUser);
         when(jwtTokenUtil.generateToken(any(UserDetails.class))).thenReturn(TOKEN);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
@@ -148,6 +160,7 @@ public class AuthControllerTest extends BaseControllerTest {
         int status = result.getResponse().getStatus();
 
         verify(userDetailsService, times(1)).loadUserByUsername(anyString());
+        verify(userService, times(1)).findByUsername(anyString());
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
 
         assertEquals("Expected HTTP status 200", 200, status);
