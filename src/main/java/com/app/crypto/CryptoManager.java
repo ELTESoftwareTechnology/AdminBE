@@ -74,14 +74,9 @@ public class CryptoManager {
         return verified;
     }
 
-    private byte[] dataEncryption(VirgilPublicKey receiverPublicKey) throws EncryptionException {
-        // prepare a message
-        String messageToEncrypt = "Hello, Bob!";
-        byte[] dataToEncrypt = ConvertionUtils.toBytes(messageToEncrypt);
-
-        // encrypt the message
+    private byte[] dataEncryption(String dataString, VirgilPublicKey receiverPublicKey) throws EncryptionException {
+        byte[] dataToEncrypt = ConvertionUtils.toBytes(dataString);
         byte[] encryptedData = crypto.encrypt(dataToEncrypt, receiverPublicKey);
-
         return encryptedData;
     }
 
