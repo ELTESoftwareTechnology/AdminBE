@@ -71,7 +71,7 @@ public class ChunkController extends BaseController {
             for (ChunkInfo info : infosByPatient) {
                 String encryptedData = info.getData().getEncryptedData();
                 CryptoManager manager = new CryptoManager();
-                String decryptedText = manager.dataDecryption(ConvertionUtils.toBase64Bytes(encryptedData), privateKey);
+                String decryptedText = manager.dataDecryption(encryptedData.getBytes("ISO-8859-1"), privateKey);
                 decryptedData.add(decryptedText);
             }
         } catch (Exception ex) {
