@@ -20,7 +20,7 @@ pipeline:
     secrets: [ rancher_access_key, rancher_secret_key ]
     service: adminbe/api
     docker_image: "eltesoftwaretechnology/admin-backend:${DRONE_TAG##v}"
-    start_first: true
+    start_first: false
     confirm: false
     timeout: 180
     when:
