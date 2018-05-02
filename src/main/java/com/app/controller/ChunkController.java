@@ -10,10 +10,8 @@ import com.app.exception.TargetUserNotFoundException;
 import com.app.security.auth.JwtUser;
 import com.app.service.ChunkService;
 import com.app.service.UserService;
-import com.app.util.JSONUtil;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.utils.Base64;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,7 +69,7 @@ public class ChunkController extends BaseController {
 
         try {
             for (ChunkInfo info : infosByPatient) {
-                String encryptedData = JSONUtil.unescape(info.getData().getEncryptedData());
+                String encryptedData = info.getData().getEncryptedData();
                 CryptoManager manager = new CryptoManager();
                 String decryptedText = manager.dataDecryption(Base64.decode(encryptedData), privateKey);
                 decryptedData.add(decryptedText);
