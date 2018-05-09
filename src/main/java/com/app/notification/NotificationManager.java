@@ -2,9 +2,7 @@ package com.app.notification;
 
 import com.app.entity.Notification;
 import com.app.entity.User;
-import com.app.service.ChunkService;
 import com.app.service.NotificationService;
-import netscape.javascript.JSObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
