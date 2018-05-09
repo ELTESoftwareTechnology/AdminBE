@@ -2,6 +2,7 @@ package com.app.controller;
 
 import com.app.entity.User;
 import com.app.entity.enums.RoleTypeEnum;
+import com.app.notification.NotificationManager;
 import com.app.security.auth.JwtAuthenticationRequest;
 import com.app.security.auth.JwtAuthenticationResponse;
 import com.app.security.auth.JwtUser;
@@ -61,6 +62,9 @@ public class AuthControllerTest extends BaseControllerTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private NotificationManager notificationManager;
+
     @InjectMocks
     @Autowired
     private AuthController authController;
@@ -86,6 +90,8 @@ public class AuthControllerTest extends BaseControllerTest {
                 user.getUsername(), user.getEmail(), password, user.getFirstName(), user.getLastName(), RoleTypeEnum.USER.toString());
 
         JwtAuthenticationResponse expectedResponse = new JwtAuthenticationResponse(TOKEN);
+
+        doNothing().when(notificationManager).sendMail(any(),any(),any(), any());
 
         when(userService.findByUsername(anyString())).thenReturn(null);
 
