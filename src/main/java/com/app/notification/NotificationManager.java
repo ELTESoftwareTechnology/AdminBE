@@ -1,6 +1,12 @@
 package com.app.notification;
 
+import com.app.entity.Notification;
+import com.app.entity.User;
+import com.app.service.ChunkService;
+import com.app.service.NotificationService;
 import netscape.javascript.JSObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -8,6 +14,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Map;
 import java.util.Properties;
 
+@Component
 public class NotificationManager {
 
     public enum NotificationType {
@@ -17,7 +24,14 @@ public class NotificationManager {
         EvaluationReceived
     }
 
-    public static void sendMail(NotificationType type, String email, Map<String, Object> data){
+    private NotificationService notificationService;
+
+    @Autowired
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
+    public void sendMail(NotificationType type, User from, String email, Map<String, Object> data){
         switch (type) {
             case Registration:
                 sendMail(email,
@@ -27,17 +41,20 @@ public class NotificationManager {
             case Invitation:
                 sendMail(email,
                         "You have been invited to MedicalBox",
-                        "One of your patient shared their medical data with you. Please click on the link below to register and view it: <a href=\"http://medicalbox.online\">http://medicalbox.online</a>");
+                        "One of your patient shared their medical data with you. Please click on the link below to register and view it: http://medicalbox.online");
                 break;
             case DataReceived:
                 sendMail(email,
                         "You have got new medical data",
-                        "One of your patient shared their medical data with you. Log in to the MedicalBox system to view it: <a href=\"http://medicalbox.online\">http://medicalbox.online</a>");
+                        "One of your patient shared their medical data with you. Log in to the MedicalBox system to view it: http://medicalbox.online");
                 break;
         }
+
+        Notification notification = new Notification(0L, from, email, type.name(), null);
+        notificationService.saveNotification(notification);
     }
 
-    public static void sendMail(String email, String subject, String content){
+    public void sendMail(String email, String subject, String content){
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");

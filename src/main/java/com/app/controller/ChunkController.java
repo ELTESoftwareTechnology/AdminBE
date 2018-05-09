@@ -34,6 +34,7 @@ public class ChunkController extends BaseController {
 
     private ChunkService chunkService;
     private UserService userService;
+    private NotificationManager notificationManager;
 
     /**
      * Injects ChunkService instance
@@ -43,6 +44,7 @@ public class ChunkController extends BaseController {
     public void setChunkService(ChunkService chunkService) {
         this.chunkService = chunkService;
     }
+
     /**
      * Injects UserService instance
      * @param userService to inject
@@ -52,6 +54,14 @@ public class ChunkController extends BaseController {
         this.userService = userService;
     }
 
+    /**
+     * Injects NotificationManager instance
+     * @param notificationManager to inject
+     */
+    @Autowired
+    public void setNotificationManager(NotificationManager notificationManager) {
+        this.notificationManager = notificationManager;
+    }
 
     @GetMapping(CHUNK_QUERY_URL)
     public ResponseEntity queryChunk(@RequestParam("patientUsername") String patientUsername) {
@@ -97,7 +107,7 @@ public class ChunkController extends BaseController {
         ChunkInfo info = new ChunkInfo(0L, fromUser, toUser, null, chunkUploadRequest.getComment());
         info = chunkService.saveDataAndInfo(data, info);
 
-        NotificationManager.sendMail(NotificationManager.NotificationType.DataReceived, toUser.getEmail(), null);
+        notificationManager.sendMail(NotificationManager.NotificationType.DataReceived, fromUser, toUser.getEmail(), null);
 
         return new ResponseEntity(HttpStatus.OK);
     }
