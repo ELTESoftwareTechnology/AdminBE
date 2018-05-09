@@ -2,15 +2,16 @@ package com.app.controller;
 
 import com.app.crypto.CryptoManager;
 import com.app.entity.Role;
-import com.app.entity.enums.RoleTypeEnum;
 import com.app.entity.User;
+import com.app.entity.enums.RoleTypeEnum;
 import com.app.exception.InvalidPasswordException;
 import com.app.exception.UserAlreadyExistsException;
 import com.app.exception.UserNotFoundException;
+import com.app.notification.NotificationManager;
 import com.app.security.auth.JwtAuthenticationRequest;
 import com.app.security.auth.JwtAuthenticationResponse;
-import com.app.security.auth.JwtUtil;
 import com.app.security.auth.JwtUser;
+import com.app.security.auth.JwtUtil;
 import com.app.service.RoleService;
 import com.app.service.UserService;
 import com.app.util.ExceptionUtil;
@@ -32,7 +33,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.management.relation.RoleNotFoundException;
 import javax.persistence.NoResultException;
@@ -174,6 +177,8 @@ public class AuthController extends BaseController {
         final Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(name, password)
         );
+
+        NotificationManager.sendMail(NotificationManager.NotificationType.Registration, email, null);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String token = jwtUtil.generateToken(userDetails);

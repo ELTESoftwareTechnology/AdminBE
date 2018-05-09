@@ -7,6 +7,7 @@ import com.app.entity.ChunkInfo;
 import com.app.entity.User;
 import com.app.exception.KeyExpiredException;
 import com.app.exception.TargetUserNotFoundException;
+import com.app.notification.NotificationManager;
 import com.app.security.auth.JwtUser;
 import com.app.service.ChunkService;
 import com.app.service.UserService;
@@ -95,6 +96,8 @@ public class ChunkController extends BaseController {
         ChunkData data = new ChunkData(0L, chunkUploadRequest.getEncryptedData());
         ChunkInfo info = new ChunkInfo(0L, fromUser, toUser, null, chunkUploadRequest.getComment());
         info = chunkService.saveDataAndInfo(data, info);
+
+        NotificationManager.sendMail(NotificationManager.NotificationType.DataReceived, toUser.getEmail(), null);
 
         return new ResponseEntity(HttpStatus.OK);
     }

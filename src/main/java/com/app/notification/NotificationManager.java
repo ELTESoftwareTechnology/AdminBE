@@ -1,7 +1,65 @@
 package com.app.notification;
 
+import netscape.javascript.JSObject;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.Map;
+import java.util.Properties;
+
 public class NotificationManager {
 
-    // queue mail notification with type, etc.
+    public enum NotificationType {
+        Registration,
+        Invitation,
+        DataReceived,
+        EvaluationReceived
+    }
+
+    public static void sendMail(NotificationType type, String email, Map<String, Object> data){
+        switch (type) {
+            case Registration:
+                sendMail(email,
+                        "Thank you for registering!",
+                        "Welcome to the MedicalBox System. We hope you enjoy your stay!");
+                break;
+            case Invitation:
+                sendMail(email,
+                        "You have been invited to MedicalBox",
+                        "One of your patient shared their medical data with you. Please click on the link below to register and view it: <a href=\"http://medicalbox.online\">http://medicalbox.online</a>");
+                break;
+            case DataReceived:
+                sendMail(email,
+                        "You have got new medical data",
+                        "One of your patient shared their medical data with you. Log in to the MedicalBox system to view it: <a href=\"http://medicalbox.online\">http://medicalbox.online</a>");
+                break;
+        }
+    }
+
+    public static void sendMail(String email, String subject, String content){
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.zoho.eu");
+        props.put("mail.smtp.port", "587");
+
+        Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication("daniel@medicalbox.online","MedicalBox777");
+                    }});
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("daniel@medicalbox.online"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
+            message.setSubject(subject);
+            message.setText(content);
+            Transport.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
