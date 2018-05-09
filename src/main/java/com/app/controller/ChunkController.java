@@ -7,6 +7,7 @@ import com.app.entity.ChunkInfo;
 import com.app.entity.User;
 import com.app.exception.KeyExpiredException;
 import com.app.exception.TargetUserNotFoundException;
+import com.app.notification.NotificationManager;
 import com.app.security.auth.JwtUser;
 import com.app.service.ChunkService;
 import com.app.service.UserService;
@@ -33,6 +34,7 @@ public class ChunkController extends BaseController {
 
     private ChunkService chunkService;
     private UserService userService;
+    private NotificationManager notificationManager;
 
     /**
      * Injects ChunkService instance
@@ -42,6 +44,7 @@ public class ChunkController extends BaseController {
     public void setChunkService(ChunkService chunkService) {
         this.chunkService = chunkService;
     }
+
     /**
      * Injects UserService instance
      * @param userService to inject
@@ -51,6 +54,14 @@ public class ChunkController extends BaseController {
         this.userService = userService;
     }
 
+    /**
+     * Injects NotificationManager instance
+     * @param notificationManager to inject
+     */
+    @Autowired
+    public void setNotificationManager(NotificationManager notificationManager) {
+        this.notificationManager = notificationManager;
+    }
 
     @GetMapping(CHUNK_QUERY_URL)
     public ResponseEntity queryChunk(@RequestParam("patientUsername") String patientUsername) {
@@ -95,6 +106,8 @@ public class ChunkController extends BaseController {
         ChunkData data = new ChunkData(0L, chunkUploadRequest.getEncryptedData());
         ChunkInfo info = new ChunkInfo(0L, fromUser, toUser, null, chunkUploadRequest.getComment());
         info = chunkService.saveDataAndInfo(data, info);
+
+        notificationManager.sendMail(NotificationManager.NotificationType.DataReceived, fromUser, toUser.getEmail(), null);
 
         return new ResponseEntity(HttpStatus.OK);
     }

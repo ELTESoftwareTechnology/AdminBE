@@ -2,15 +2,16 @@ package com.app.controller;
 
 import com.app.crypto.CryptoManager;
 import com.app.entity.Role;
-import com.app.entity.enums.RoleTypeEnum;
 import com.app.entity.User;
+import com.app.entity.enums.RoleTypeEnum;
 import com.app.exception.InvalidPasswordException;
 import com.app.exception.UserAlreadyExistsException;
 import com.app.exception.UserNotFoundException;
+import com.app.notification.NotificationManager;
 import com.app.security.auth.JwtAuthenticationRequest;
 import com.app.security.auth.JwtAuthenticationResponse;
-import com.app.security.auth.JwtUtil;
 import com.app.security.auth.JwtUser;
+import com.app.security.auth.JwtUtil;
 import com.app.service.RoleService;
 import com.app.service.UserService;
 import com.app.util.ExceptionUtil;
@@ -32,7 +33,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.management.relation.RoleNotFoundException;
 import javax.persistence.NoResultException;
@@ -58,6 +61,7 @@ public class AuthController extends BaseController {
     private UserDetailsService userDetailsService;
     private UserService userService;
     private RoleService roleService;
+    private NotificationManager notificationManager;
 
     /**
      * Injects AuthenticationManager instance
@@ -84,6 +88,15 @@ public class AuthController extends BaseController {
     @Autowired
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    /**
+     * Injects NotificationManager instance
+     * @param notificationManager to inject
+     */
+    @Autowired
+    public void setNotificationManager(NotificationManager notificationManager) {
+        this.notificationManager = notificationManager;
     }
 
     /**
@@ -142,6 +155,7 @@ public class AuthController extends BaseController {
         }
 
         JwtUser userDetails;
+        User user;
 
         try {
             Role role  = this.roleService.findByRoleType(roleType);
@@ -153,9 +167,9 @@ public class AuthController extends BaseController {
             byte[] publicKeyData = crypto.exportPublicKey(keyPair.getPublicKey());
             String publicKeyStr = ConvertionUtils.toBase64String(publicKeyData);
 
-            User user = new User(0L, name, email, password, privateKeyStr, publicKeyStr, firstName, lastName, role);
+            user = new User(0L, name, email, password, privateKeyStr, publicKeyStr, firstName, lastName, role);
             LOG.info(user.toString());
-            userService.save(user);
+            user = userService.save(user);
             userDetails = (JwtUser) userDetailsService.loadUserByUsername(name);
         } catch (UsernameNotFoundException ex) {
             LOG.error(ex.getMessage());
@@ -174,6 +188,8 @@ public class AuthController extends BaseController {
         final Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(name, password)
         );
+
+        notificationManager.sendMail(NotificationManager.NotificationType.Registration, user, email, null);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String token = jwtUtil.generateToken(userDetails);
