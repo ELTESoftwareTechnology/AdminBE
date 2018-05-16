@@ -73,7 +73,8 @@ public class NotificationManager {
             message.setText(content);
             Transport.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            System.out.println("Mail sending failed:");
+            System.out.println(e);
         }
     }
 
